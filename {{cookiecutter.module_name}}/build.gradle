@@ -1,0 +1,127 @@
+{% if cookiecutter.include_buildscript == "y" %}
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+        google()
+    }
+    dependencies {
+    {% if cookiecutter.use_errorprone == "y" -%}
+        classpath "net.ltgt.gradle:gradle-errorprone-plugin:0.0.11"
+    {%- endif %}
+    {% if cookiecutter.use_ben_manes_versions == "y" -%}
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.15.0'
+    {%- endif %}
+    }
+}
+{% endif %}
+{% if cookiecutter.use_errorprone == "y" -%}
+apply plugin: "net.ltgt.errorprone"
+{%- endif %}
+{% if cookiecutter.use_ben_manes_versions == "y" -%}
+apply plugin: 'com.github.ben-manes.versions'
+{%- endif %}
+{% if cookiecutter.use_retrolambda == "y" -%}
+apply plugin: 'me.tatarka.retrolambda'
+{%- endif %}
+{% if cookiecutter.module_type == "Application" -%}
+apply plugin: 'com.android.application'
+{%- else %}
+apply plugin: 'com.android.library'
+{%- endif %}
+{% if cookiecutter.kotlin == "y" -%}
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+{%- endif %}
+{% if cookiecutter.use_butterknife == "y" -%}
+apply plugin: 'com.jakewharton.butterknife'
+{%- endif %}
+
+android {
+    compileSdkVersion vers.compileSdk
+    buildToolsVersion vers.buildTools
+
+    defaultConfig {
+        minSdkVersion {{cookiecutter.minSdkVersion}}
+        targetSdkVersion vers.targetSdk
+
+        versionName {{cookiecutter.version}}
+    }
+
+{% if cookiecutter.use_butterknife == "7" -%}
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+{% elif cookiecutter.use_butterknife == "8" %}
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+{% endif %}
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+
+    lintOptions {
+        abprtOnError false
+    }
+}
+dependencies {
+{% if cookiecutter.use_supportlibs == "y" %}
+    compile "com.android.support:appcompat-v7:${vers.support}"
+    compile "com.android.support:design:${vers.support}"
+    compile "com.android.support:cardview-v7:${vers.support}"
+    compile "com.android.support:recyclerview-v7:${vers.support}"
+{% endif %}
+{% if cookiecutter.use_rxjava2 == "y" %}
+    // Android libraries for RxJava2
+    compile "io.reactivex.rxjava2:rxandroid:${vers.rxandroid2}"
+{% endif %}
+{% if cookiecutter.use_rxbindings == "y" %}
+    //RxBinding: https://github.com/JakeWharton/RxBinding
+    compile "com.jakewharton.rxbinding2:rxbinding:${vers.rxbinding2}"
+    {% if cookiecutter.use_supportlibs == "y" %}
+    compile "com.jakewharton.rxbinding2:rxbinding-support-v4:${vers.rxbinding2}"
+    compile "com.jakewharton.rxbinding2:rxbinding-appcompat-v7:${vers.rxbinding2}"
+    compile "com.jakewharton.rxbinding2:rxbinding-design:${vers.rxbinding2}"
+    compile "com.jakewharton.rxbinding2:rxbinding-recyclerview-v7:${vers.rxbinding2}"
+    {% endif %}
+{% endif %}
+{% if cookiecutter.use_butterknife == "y" %}
+    compile "com.jakewharton:butterknife:${vers.butterknife}"
+    {% if cookiecutter.kotlin == "y" %}
+    kapt "com.jakewharton:butterknife-compiler:${vers.butterknife}"
+    {% else %}
+    annotationProcessor "com.jakewharton:butterknife-compiler:${vers.butterknife}"
+    {% endif %}
+{% endif %}
+{% if cookiecutter.use_timber == "y" %}
+    compile "com.jakewharton.timber:timber:${vers.timber}"
+{% endif %}
+{% if cookiecutter.use_jodatime == "y" %}
+    // JodaTime android: https://github.com/dlew/joda-time-android
+    compile "net.danlew:android.joda:${vers.joda}"
+{% endif %}
+
+{% if cookiecutter.use_dagger2 == "y" %}
+    // Dagger2 - A fast dependency injector for Android and Java.
+    // See: https://github.com/google/dagger/releases
+    compile "com.google.dagger:dagger:${vers.dagger}"
+    compile "com.google.dagger:dagger-android:${vers.dagger}"
+    {% if cookiecutter.use_supportlibs == "y" %}
+    compile "com.google.dagger:dagger-android-support:${vers.dagger}"
+    {% endif %}    
+    provided 'javax.annotation:jsr250-api:1.0'
+{% endif %}    
+    
+    // SLF4J - Simple Logging Facade for Java
+    // See: http://www.slf4j.org/download.html
+    compile "org.slf4j:slf4j-api:${vers.slf4j}"
+
+}
